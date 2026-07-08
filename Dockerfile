@@ -1,8 +1,8 @@
-FROM node:20-alpine
+FROM node:22-alpine
 
 USER root
 
-# Install Chromium and system dependencies
+# Install Chromium + build tools needed for native modules
 RUN apk add --no-cache \
     chromium \
     nss \
@@ -10,12 +10,14 @@ RUN apk add --no-cache \
     harfbuzz \
     ca-certificates \
     ttf-freefont \
-    tini
+    tini \
+    make \
+    g++ \
+    python3
 
 # Install n8n globally
 RUN npm install -g n8n
 
-# Set environment variables
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 ENV PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium-browser
 ENV N8N_USER_FOLDER=/home/node/.n8n
