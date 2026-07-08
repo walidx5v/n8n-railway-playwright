@@ -2,7 +2,6 @@ FROM node:22-alpine
 
 USER root
 
-# Install Chromium + build tools needed for native modules
 RUN apk add --no-cache \
     chromium \
     nss \
@@ -15,17 +14,20 @@ RUN apk add --no-cache \
     g++ \
     python3
 
-# Install n8n globally
 RUN npm install -g n8n
 
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
-ENV PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium-browser
-ENV N8N_USER_FOLDER=/home/node/.n8n
+ENV N8N_USER_FOLDER=/home/node
 
 # Install Playwright community node
 RUN mkdir -p /home/node/.n8n/nodes && \
     cd /home/node/.n8n/nodes && \
     npm install n8n-nodes-playwright
+
+# Create exact path the node expects and symlink system Chromium there
+RUN mkdir -p /home/node/.n8n/nodes/node_modules/n8n-nodes-playwright/dist/nodes/browsers/chromium-1228/chrome-linux && \
+    ln -sf /usr/bin/chromium \
+    /home/node/.n8n/nodes/node_modules/n8n-nodes-playwright/dist/nodes/browsers/chromium-1228/chrome-linux/chrome
 
 RUN chown -R node:node /home/node
 
