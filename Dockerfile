@@ -2,23 +2,20 @@ FROM n8nio/n8n:latest
 
 USER root
 
-RUN apt-get update && apt-get install -y \
+# Use full path to apk since /sbin is not in PATH
+RUN /sbin/apk add --no-cache \
     chromium \
-    chromium-driver \
-    libnss3 \
-    libfreetype6 \
-    libharfbuzz0b \
+    nss \
+    freetype \
+    harfbuzz \
     ca-certificates \
-    fonts-freefont-ttf \
-    --no-install-recommends \
-    && rm -rf /var/lib/apt/lists/*
+    ttf-freefont
 
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
-ENV PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium
+ENV PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
-RUN cd /home/node/.n8n && \
-    mkdir -p nodes && \
-    cd nodes && \
+RUN mkdir -p /home/node/.n8n/nodes && \
+    cd /home/node/.n8n/nodes && \
     npm install n8n-nodes-playwright
 
 RUN chown -R node:node /home/node/.n8n
