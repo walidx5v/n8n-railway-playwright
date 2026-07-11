@@ -17,17 +17,10 @@ RUN apk add --no-cache \
 RUN npm install -g n8n
 
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
-ENV N8N_USER_FOLDER=/home/node
+ENV N8N_USER_FOLDER=/home/node/.n8n
 
-# Install Playwright community node
-RUN mkdir -p /home/node/.n8n/nodes && \
-    cd /home/node/.n8n/nodes && \
-    npm install n8n-nodes-playwright
-
-# Create exact path the node expects and symlink system Chromium there
-RUN mkdir -p /home/node/.n8n/nodes/node_modules/n8n-nodes-playwright/dist/nodes/browsers/chromium-1228/chrome-linux && \
-    ln -sf /usr/bin/chromium \
-    /home/node/.n8n/nodes/node_modules/n8n-nodes-playwright/dist/nodes/browsers/chromium-1228/chrome-linux/chrome
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 RUN chown -R node:node /home/node
 
@@ -35,5 +28,4 @@ USER node
 
 EXPOSE 5678
 
-ENTRYPOINT ["tini", "--"]
-CMD ["n8n", "start"]
+ENTRYPOINT ["/entrypoint.sh"]
